@@ -367,94 +367,10 @@ function Profile() {
           )}
 
           <Row>
-            {/* Left Column - Stats & Achievements */}
-            <Col lg={4} className="mb-4">
-              {/* Stats Card */}
-              {/* <Card className="border-0 shadow mb-4">
-                <Card.Header className="bg-white border-0">
-                  <h5 className="mb-0">Your Stats</h5>
-                </Card.Header>
-                <Card.Body>
-                  <ListGroup variant="flush">
-                    <ListGroup.Item className="border-0 d-flex justify-content-between">
-                      <span><FaChartLine className="me-2 text-primary" /> Total Interviews</span>
-                      <Badge bg="primary">{mockStats.totalInterviews}</Badge>
-                    </ListGroup.Item>
-                    <ListGroup.Item className="border-0 d-flex justify-content-between">
-                      <span><FaTrophy className="me-2 text-warning" /> Success Rate</span>
-                      <Badge bg="success">{mockStats.successRate}%</Badge>
-                    </ListGroup.Item>
-                    <ListGroup.Item className="border-0 d-flex justify-content-between">
-                      <span><FaStar className="me-2 text-info" /> Average Score</span>
-                      <Badge bg="info">{mockStats.averageScore}/10</Badge>
-                    </ListGroup.Item>
-                    <ListGroup.Item className="border-0 d-flex justify-content-between">
-                      <span><FaCalendarAlt className="me-2 text-danger" /> Practice Streak</span>
-                      <Badge bg="danger">{mockStats.streakDays} days</Badge>
-                    </ListGroup.Item>
-                    <ListGroup.Item className="border-0 d-flex justify-content-between">
-                      <span>Global Rank</span>
-                      <Badge bg="secondary">{mockStats.rank}</Badge>
-                    </ListGroup.Item>
-                  </ListGroup>
-                </Card.Body>
-              </Card> */}
-
-              {/* Achievements */}
-              {/* <Card className="border-0 shadow mb-4">
-                <Card.Header className="bg-white border-0">
-                  <h5 className="mb-0">Achievements</h5>
-                </Card.Header>
-                <Card.Body>
-                  {recentAchievements.map((achievement) => (
-                    <div key={achievement.id} className={`d-flex align-items-center mb-3 p-2 rounded ${achievement.unlocked ? 'bg-light' : 'bg-light opacity-50'}`}>
-                      <div className="me-3" style={{ fontSize: '24px' }}>
-                        {achievement.icon}
-                      </div>
-                      <div className="flex-grow-1">
-                        <h6 className="mb-1">{achievement.title}</h6>
-                        <p className="small text-muted mb-1">{achievement.description}</p>
-                        {achievement.date && (
-                          <small className="text-muted">{achievement.date}</small>
-                        )}
-                      </div>
-                      {achievement.unlocked ? (
-                        <Badge bg="success">Unlocked</Badge>
-                      ) : (
-                        <Badge bg="secondary">Locked</Badge>
-                      )}
-                    </div>
-                  ))}
-                </Card.Body>
-              </Card> */}
-
-              {/* Skill Progress */}
-              <Card className="border-0 shadow">
-                <Card.Header className="bg-white border-0">
-                  <h5 className="mb-0">Skill Progress</h5>
-                </Card.Header>
-                <Card.Body>
-                  {skillProgress.map((skill, index) => (
-                    <div key={index} className="mb-3">
-                      <div className="d-flex justify-content-between mb-1">
-                        <span>{skill.skill}</span>
-                        <span className="fw-bold">{skill.level}%</span>
-                      </div>
-                      <ProgressBar 
-                        now={skill.level} 
-                        max={skill.target}
-                        variant="primary"
-                        animated 
-                      />
-                      <small className="text-muted">Target: {skill.target}%</small>
-                    </div>
-                  ))}
-                </Card.Body>
-              </Card>
-            </Col>
-
+           
+              
             {/* Right Column - Profile Details */}
-            <Col lg={8}>
+            <Col lg={12}>
               <Card className="border-0 shadow">
                 <Card.Header className="bg-white border-0">
                   <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>

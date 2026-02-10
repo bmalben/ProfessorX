@@ -184,7 +184,7 @@ function Header() {
                 {darkMode ? <FaSun /> : <FaMoon />}
               </Button>
 
-              {/* Search Button (Optional) */}
+              {/* Search Button (Optional)
               <Button
                 variant="outline-secondary"
                 size="sm"
@@ -192,7 +192,7 @@ function Header() {
                 title="Search"
               >
                 <FaSearch />
-              </Button>
+              </Button> */}
 
               {/* Notifications Dropdown */}
               <Dropdown className="me-2">
@@ -210,7 +210,7 @@ function Header() {
                       className="position-absolute"
                       style={{
                         top: '-5px',
-                        right: '-5px',
+                        left: '-5px',
                         fontSize: '0.6rem'
                       }}
                     >
@@ -219,8 +219,8 @@ function Header() {
                   )}
                 </Dropdown.Toggle>
 
-                <Dropdown.Menu style={{ minWidth: '300px' }}>
-                  <div className="px-3 py-2 d-flex justify-content-between align-items-center border-bottom">
+                <Dropdown.Menu style={{ minWidth: '300px' }} >
+                  <div className="px-3 py-2 d-flex justify-content-between align-items-center border-bottom dropdown-menu-start">
                     <h6 className="mb-0">Notifications</h6>
                     {unreadCount > 0 && (
                       <Button
@@ -381,6 +381,7 @@ function Header() {
           background-color: #121212;
           color: #ffffff;
         }
+
         
         .dark-mode .navbar {
           background-color: #1a1a1a !important;

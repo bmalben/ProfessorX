@@ -37,7 +37,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   AreaChart, Area, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
-import Header from './Header';
+import Header from '../components/Header';
 
 const Analytics = () => {
   const [timeRange, setTimeRange] = useState('month');
@@ -118,7 +118,7 @@ const Analytics = () => {
 
   return (
     <div className="analytics-page">
-      <Header />
+      <Header/>
       
       <Container fluid className="mt-4">
         {/* Header Section */}
