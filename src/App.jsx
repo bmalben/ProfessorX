@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
 import Interview from './pages/Interview'
 import Analytics from './pages/Analytics'
+import Settings from './pages/Settings'
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
       <Route path="/profile" element={<Profile />} />
       <Route path="/interview" element={<Interview />} />
       <Route path="/analytics" element={<Analytics />} />
+      <Route path="/settings" element={<Settings />} />
       <Route path="/*" element={<Navigate to={"/"} />} />
       </Routes>
     </>
