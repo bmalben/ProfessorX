@@ -68,7 +68,11 @@ function Register() {
         });
       }
     } catch (err) {
-      setError(err.response?.data || "Registration failed");
+      const errorMessage =
+        err.response?.data && typeof err.response.data === "string"
+          ? err.response.data
+          : err.response?.data?.message || "Registration failed";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

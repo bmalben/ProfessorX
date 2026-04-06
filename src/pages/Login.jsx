@@ -48,13 +48,25 @@ function Login() {
         sessionStorage.setItem("userName", result.data.existingUser.userName);
         sessionStorage.setItem("token", result.data.token);
 
+        // Required for Dashboard.jsx and Header.jsx to recognize the user
+        localStorage.setItem("professorX_token", result.data.token);
+        localStorage.setItem("professorX_user", JSON.stringify({
+          id: result.data.existingUser._id,
+          name: result.data.existingUser.userName,
+          email: result.data.existingUser.email
+        }));
+
         toast.success("Login successful");
         navigate("/dashboard");
 
         setUserData({ email: "", password: "" });
       }
     } catch (err) {
-      setLoginError(err.response?.data || "Login failed");
+      const errorMessage =
+        err.response?.data && typeof err.response.data === "string"
+          ? err.response.data
+          : err.response?.data?.message || "Login failed";
+      setLoginError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -219,7 +219,7 @@ function Header() {
                   )}
                 </Dropdown.Toggle>
 
-                <Dropdown.Menu style={{ minWidth: '300px' }} >
+                <Dropdown.Menu align="end" style={{ minWidth: '300px' }} >
                   <div className="px-3 py-2 d-flex justify-content-between align-items-center border-bottom dropdown-menu-start">
                     <h6 className="mb-0">Notifications</h6>
                     {unreadCount > 0 && (
@@ -300,7 +300,7 @@ function Header() {
                     </span>
                   </Dropdown.Toggle>
 
-                  <Dropdown.Menu>
+                  <Dropdown.Menu align="end">
                     <Dropdown.Header>
                       <div className="d-flex align-items-center">
                         <img
