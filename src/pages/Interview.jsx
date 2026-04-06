@@ -12,6 +12,7 @@ import AIInterviewerCard from '../components/interview/AIInterviewerCard';
 import RealTimeFeedbackCard from '../components/interview/RealTimeFeedbackCard';
 import RightSidebar from '../components/interview/RightSidebar';
 import InterviewModals from '../components/interview/InterviewModals';
+import { saveInterviewAPI } from '../Services/allAPI';
 
 function Interview() {
   const { id } = useParams(); // For specific interview sessions
@@ -381,27 +382,49 @@ function Interview() {
   };
 
   // Save interview
-  const saveInterview = () => {
+  const saveInterview = async () => {
     const interviewData = {
       id: Date.now(),
       date: new Date().toISOString(),
       type: interview.type,
+      difficulty: interview.difficulty,
       duration: interviewState.elapsedTime,
       questions: questions,
       results: results
     };
 
-    // Save to localStorage
-    const savedInterviews = JSON.parse(localStorage.getItem('professorX_interviews') || '[]');
-    savedInterviews.push(interviewData);
-    localStorage.setItem('professorX_interviews', JSON.stringify(savedInterviews));
+    try {
+      const response = await saveInterviewAPI(interviewData);
+      
+      if (response.status === 200) {
+        toast.success('Interview saved securely to your account!', {
+          position: "top-center",
+          autoClose: 3000,
+          icon: "💾",
+          onClick: () => navigate('/history')
+        });
+      } else {
+        console.warn('API Warning - Falling back to local storage', response);
+        // Save to localStorage fallback
+        const savedInterviews = JSON.parse(localStorage.getItem('professorX_interviews') || '[]');
+        savedInterviews.push(interviewData);
+        localStorage.setItem('professorX_interviews', JSON.stringify(savedInterviews));
 
-    toast.success('Interview saved to history!', {
-      position: "top-center",
-      autoClose: 3000,
-      icon: "💾",
-      onClick: () => navigate('/history')
-    });
+        toast.warning('Saved locally (Login required for cloud save)', {
+          position: "top-center",
+          autoClose: 3000,
+          icon: "⚠️",
+          onClick: () => navigate('/history')
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Error connecting to backend.', {
+        position: "top-center",
+        autoClose: 3000,
+        icon: "❌"
+      });
+    }
   };
 
   // Export transcript
