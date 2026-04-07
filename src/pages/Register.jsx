@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Form, Button, Container, Card, Alert, Row, Col } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
-import axios from 'axios';
 import { toast } from 'react-toastify';
+import { registerAPI } from '../Services/allAPI';
 
 function Register() {
   const navigate = useNavigate();
@@ -26,10 +26,7 @@ function Register() {
     });
   };
 
-  // API call
-  const registerAPI = async (data) => {
-    return await axios.post("http://localhost:3000/register", data);
-  };
+
 
   // handle register
   const handleRegister = async (e) => {
@@ -66,13 +63,18 @@ function Register() {
           password: "",
           confirmPassword: ""
         });
+      } else {
+        const errorMessage =
+          result.response?.data && typeof result.response.data === "string"
+            ? result.response.data
+            : result.response?.data?.message || "Registration failed";
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (err) {
-      const errorMessage =
-        err.response?.data && typeof err.response.data === "string"
-          ? err.response.data
-          : err.response?.data?.message || "Registration failed";
-      setError(errorMessage);
+      console.error(err);
+      setError("An unexpected error occurred during registration.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }

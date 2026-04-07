@@ -38,65 +38,50 @@ import {
   AreaChart, Area, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
 import Header from '../components/Header';
+import { getAnalyticsAPI } from '../Services/allAPI';
 
 const Analytics = () => {
   const [timeRange, setTimeRange] = useState('month');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [showDetailedView, setShowDetailedView] = useState(false);
 
-  // Performance data for line chart
-  const performanceData = [
-    { date: 'Jan 1', score: 6.5 },
-    { date: 'Jan 8', score: 7.2 },
-    { date: 'Jan 15', score: 7.8 },
-    { date: 'Jan 22', score: 8.3 },
-    { date: 'Jan 29', score: 8.7 },
-    { date: 'Feb 5', score: 9.1 },
-    { date: 'Feb 12', score: 8.9 },
-  ];
+  const [analyticsData, setAnalyticsData] = useState({
+    stats: {
+      totalInterviews: 0,
+      averageScore: '0.0',
+      successRate: 0,
+      averageDuration: '0m'
+    },
+    performanceData: [{ date: 'No Data', score: 0 }],
+    categoryData: [],
+    recentInterviewsList: []
+  });
+  const [loading, setLoading] = useState(true);
 
-  // Category-wise performance
-  const categoryData = [
-    { name: 'Technical', value: 8.7, color: '#8884d8' },
-    { name: 'Behavioral', value: 8.2, color: '#82ca9d' },
-    { name: 'System Design', value: 7.8, color: '#ffc658' },
-    { name: 'Coding', value: 9.1, color: '#ff8042' },
-    { name: 'Problem Solving', value: 8.5, color: '#0088fe' },
-  ];
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const result = await getAnalyticsAPI();
+        if (result.status === 200 && result.data) {
+          setAnalyticsData(result.data);
+        }
+      } catch (err) {
+        console.error("Error fetching analytics:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalytics();
+  }, []);
 
-  // Interview types distribution
-  const interviewTypeData = [
-    { name: 'Technical', value: 12, color: '#8884d8' },
-    { name: 'Behavioral', value: 8, color: '#82ca9d' },
-    { name: 'System Design', value: 5, color: '#ffc658' },
-    { name: 'Mock', value: 15, color: '#ff8042' },
-  ];
+  const { stats: backendStats, performanceData, categoryData, recentInterviewsList: recentInterviews } = analyticsData;
 
-  // Skill radar data
-  const skillData = [
-    { subject: 'Algorithm', A: 85, fullMark: 100 },
-    { subject: 'DS', A: 78, fullMark: 100 },
-    { subject: 'System Design', A: 65, fullMark: 100 },
-    { subject: 'Communication', A: 90, fullMark: 100 },
-    { subject: 'Problem Solving', A: 82, fullMark: 100 },
-    { subject: 'Time Management', A: 75, fullMark: 100 },
-  ];
-
-  // Recent interviews table data
-  const recentInterviews = [
-    { id: 1, type: 'Technical', date: '2024-02-10', score: 8.9, duration: '45m', aiFeedback: 'Excellent problem-solving' },
-    { id: 2, type: 'Behavioral', date: '2024-02-08', score: 8.2, duration: '30m', aiFeedback: 'Strong communication skills' },
-    { id: 3, type: 'System Design', date: '2024-02-05', score: 7.8, duration: '60m', aiFeedback: 'Good architecture thinking' },
-    { id: 4, type: 'Technical', date: '2024-02-01', score: 8.5, duration: '50m', aiFeedback: 'Fast implementation' },
-    { id: 5, type: 'Mock', date: '2024-01-28', score: 9.1, duration: '55m', aiFeedback: 'Outstanding performance' },
-  ];
-
-  // Stats cards data
+  // Stats cards data dynamically populated from backend
   const stats = [
-    { title: 'Total Interviews', value: '40', icon: <FaComments />, change: '+12%', trend: 'up', color: '#8884d8' },
-    { title: 'Avg Score', value: '8.3/10', icon: <FaChartLine />, change: '+0.4', trend: 'up', color: '#82ca9d' },
-    { title: 'Success Rate', value: '85%', icon: <FaCheckCircle />, change: '+5%', trend: 'up', color: '#ffc658' },
-    { title: 'Avg Duration', value: '45m', icon: <FaClock />, change: '-3m', trend: 'down', color: '#ff8042' },
+    { title: 'Total Interviews', value: backendStats.totalInterviews.toString(), icon: <FaComments />, change: '-', trend: 'up', color: '#8884d8' },
+    { title: 'Avg Score', value: `${backendStats.averageScore}/10`, icon: <FaChartLine />, change: '-', trend: 'up', color: '#82ca9d' },
+    { title: 'Success Rate', value: `${backendStats.successRate}%`, icon: <FaCheckCircle />, change: '-', trend: 'up', color: '#ffc658' },
+    { title: 'Avg Duration', value: backendStats.averageDuration, icon: <FaClock />, change: '-', trend: 'up', color: '#ff8042' },
   ];
 
   // Weak areas data
@@ -310,7 +295,7 @@ const Analytics = () => {
               </Card.Header>
               <Card.Body>
                 <ResponsiveContainer width="100%" height={300}>
-                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillData}>
+                  <RadarChart cx="50%" cy="50%" outerRadius="80%" >
                     <PolarGrid />
                     <PolarAngleAxis dataKey="subject" />
                     <PolarRadiusAxis angle={30} domain={[0, 100]} />

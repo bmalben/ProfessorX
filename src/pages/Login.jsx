@@ -3,8 +3,7 @@ import { Form, Button, Container, Card, Alert, Row, Col } from 'react-bootstrap'
 import { useNavigate, Link } from 'react-router-dom';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import axios from 'axios';
-
+import { loginAPI } from '../Services/allAPI';
 function Login() {
   const navigate = useNavigate();
 
@@ -24,10 +23,7 @@ function Login() {
     });
   };
 
-  // API call
-  const loginAPI = async (data) => {
-    return await axios.post("http://localhost:3000/login", data);
-  };
+
 
   // handle login
   const handleLogin = async (e) => {
@@ -60,13 +56,18 @@ function Login() {
         navigate("/dashboard");
 
         setUserData({ email: "", password: "" });
+      } else {
+        const errorMessage =
+          result.response?.data && typeof result.response.data === "string"
+            ? result.response.data
+            : result.response?.data?.message || "Login failed";
+        setLoginError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (err) {
-      const errorMessage =
-        err.response?.data && typeof err.response.data === "string"
-          ? err.response.data
-          : err.response?.data?.message || "Login failed";
-      setLoginError(errorMessage);
+      console.error(err);
+      setLoginError("An unexpected error occurred during login.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }

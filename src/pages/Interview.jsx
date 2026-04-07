@@ -12,7 +12,7 @@ import AIInterviewerCard from '../components/interview/AIInterviewerCard';
 import RealTimeFeedbackCard from '../components/interview/RealTimeFeedbackCard';
 import RightSidebar from '../components/interview/RightSidebar';
 import InterviewModals from '../components/interview/InterviewModals';
-import { saveInterviewAPI } from '../Services/allAPI';
+import { saveInterviewAPI, generateQuestionsAPI, evaluateAnswerAPI } from '../Services/allAPI';
 
 function Interview() {
   const { id } = useParams(); // For specific interview sessions
@@ -160,6 +160,23 @@ function Interview() {
     };
   }, [interviewState.isActive, interviewState.isPaused]);
 
+  // Fetch Questions
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const reqBody = { role: interview.position, difficulty: interview.difficulty };
+        const res = await generateQuestionsAPI(reqBody);
+        if (res.status === 200 && res.data?.length > 0) {
+          setQuestions(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch questions", err);
+        // Fallback to initial mock questions
+      }
+    };
+    fetchQuestions();
+  }, [interview.position, interview.difficulty]);
+
   // Format time display
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -204,7 +221,8 @@ function Interview() {
   };
 
   // Submit answer
-  const submitAnswer = () => {
+  const submitAnswer = async () => {
+    if (interviewState.isProcessing) return; // Prevent double firing
     const currentQuestion = questions[interviewState.currentQuestionIndex];
     const answer = userInput.trim() || speechRef.current;
 
@@ -217,68 +235,78 @@ function Interview() {
       return;
     }
 
-    // Simulate AI processing
     setInterviewState(prev => ({ ...prev, isProcessing: true }));
     
-    // Show processing toast
-    const processingToast = toast.info('Processing your answer...', {
+    const processingToast = toast.info('Evaluating your answer...', {
       position: "top-center",
       autoClose: false,
       isLoading: true,
       icon: "🤖"
     });
-    
-    // Update question with user answer
-    const updatedQuestions = [...questions];
-    updatedQuestions[interviewState.currentQuestionIndex] = {
-      ...currentQuestion,
-      userAnswer: answer,
-      aiFeedback: {
-        score: Math.floor(Math.random() * 30) + 70, // Random score 70-100
-        feedback: "Good answer! You covered the main points well. Consider providing more specific examples next time.",
-        strengths: ["Clear communication", "Relevant experience mentioned"],
-        improvements: ["Add more metrics", "Structure with STAR method"]
-      }
-    };
-    setQuestions(updatedQuestions);
 
-    // Simulate AI thinking
-    setTimeout(() => {
-      setInterviewState(prev => ({ ...prev, isProcessing: false }));
-      
-      // Update toast to success
-      toast.update(processingToast, {
-        render: 'Answer submitted successfully!',
-        type: toast.TYPE.SUCCESS,
-        autoClose: 2000,
-        isLoading: false,
-        icon: "✅"
+    try {
+      const evalRes = await evaluateAnswerAPI({
+        question: currentQuestion.text,
+        userAnswer: answer,
+        role: interview.position
       });
-      
-      // Show score toast
-      const score = updatedQuestions[interviewState.currentQuestionIndex].aiFeedback.score;
-      toast.success(`Score: ${score}%`, {
-        position: "top-right",
-        autoClose: 3000,
-        icon: score > 80 ? "🎯" : score > 60 ? "👍" : "📝"
-      });
-      
-      // Move to next question or end
-      if (interviewState.currentQuestionIndex < questions.length - 1) {
-        setInterviewState(prev => ({
-          ...prev,
-          currentQuestionIndex: prev.currentQuestionIndex + 1
-        }));
-        setUserInput('');
-        speechRef.current = '';
+
+      if (evalRes.status === 200) {
+        const evaluation = evalRes.data;
+        const updatedQuestions = [...questions];
+        updatedQuestions[interviewState.currentQuestionIndex] = {
+          ...currentQuestion,
+          userAnswer: answer,
+          aiFeedback: evaluation,
+          score: evaluation.score
+        };
+        setQuestions(updatedQuestions);
+
+        setInterviewState(prev => ({ ...prev, isProcessing: false }));
         
-        // Get next question
-        const nextQuestion = updatedQuestions[interviewState.currentQuestionIndex + 1];
-        speakAIResponse(`Next question: ${nextQuestion.text}`);
+        toast.update(processingToast, {
+          render: 'Answer submitted successfully!',
+          type: "success",
+          autoClose: 2000,
+          isLoading: false,
+          icon: "✅"
+        });
+        
+        const score = evaluation.score || 0;
+        toast.success(`Score: ${score}%`, {
+          position: "top-right",
+          autoClose: 3000,
+          icon: score > 80 ? "🎯" : score > 60 ? "👍" : "📝"
+        });
+        
+        // Move to next question or end
+        if (interviewState.currentQuestionIndex < questions.length - 1) {
+          setInterviewState(prev => ({
+            ...prev,
+            currentQuestionIndex: prev.currentQuestionIndex + 1
+          }));
+          setUserInput('');
+          speechRef.current = '';
+          
+          const nextQuestion = updatedQuestions[interviewState.currentQuestionIndex + 1];
+          speakAIResponse(`Next question: ${nextQuestion.text}`);
+        } else {
+          endInterview();
+        }
       } else {
-        endInterview();
+        throw new Error("Evaluation API failed");
       }
-    }, 2000);
+    } catch (err) {
+      console.error(err);
+      toast.update(processingToast, {
+        render: 'Failed to evaluate answer. Please try again.',
+        type: "error",
+        autoClose: 3000,
+        isLoading: false,
+        icon: "❌"
+      });
+      setInterviewState(prev => ({ ...prev, isProcessing: false }));
+    }
   };
 
   // End interview
